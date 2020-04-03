@@ -292,7 +292,7 @@ class FlexHCD(SampleChanger):
         if self.exporter_addr:
             unload_load_task = gevent.spawn(
                 self._execute_cmd_exporter,
-                "loadSample",
+                "load_sample",
                 sample.get_cell_no(),
                 sample.get_basket_no(),
                 sample.get_vial_no(),
@@ -478,7 +478,7 @@ class FlexHCD(SampleChanger):
         if self.exporter_addr:
             load_task = gevent.spawn(
                 self._execute_cmd_exporter,
-                "loadSample",
+                "load_sample",
                 sample.get_cell_no(),
                 sample.get_basket_no(),
                 sample.get_vial_no(),
@@ -487,7 +487,7 @@ class FlexHCD(SampleChanger):
         else:
             load_task = gevent.spawn(
                 self._execute_cmd,
-                "loadSample",
+                "load_sample",
                 sample.get_cell_no(),
                 sample.get_basket_no(),
                 sample.get_vial_no(),
@@ -547,7 +547,7 @@ class FlexHCD(SampleChanger):
 
         if self.exporter_addr:
             self._execute_cmd_exporter(
-                "unloadSample",
+                "unload_sample",
                 sample.get_cell_no(),
                 sample.get_basket_no(),
                 sample.get_vial_no(),
@@ -558,7 +558,7 @@ class FlexHCD(SampleChanger):
             )
         else:
             self._execute_cmd(
-                "unloadSample",
+                "unload_sample",
                 sample.get_cell_no(),
                 sample.get_basket_no(),
                 sample.get_vial_no(),

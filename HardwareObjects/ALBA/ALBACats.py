@@ -43,10 +43,10 @@ class ALBACats(Cats90):
         self._chnPathSafe = self.get_channel_object("_chnPathSafe")
 
         if self._chnPathRunning is not None:
-            self._chnPathRunning.connectSignal("update", self._updateRunningState)
+            self._chnPathRunning.connectSignal("update", self._update_running_state)
 
         if self._chnPowered is not None:
-            self._chnPowered.connectSignal("update", self._updatePoweredState)
+            self._chnPowered.connectSignal("update", self._update_powered_state)
 
     def is_ready(self):
         """
@@ -251,7 +251,7 @@ class ALBACats(Cats90):
     # def has_loaded_sample(self):  # not used.  to use it remove _
     #   return self._chnSampleIsDetected.getValue()
 
-    def _updateRunningState(self, value):
+    def _update_running_state(self, value):
         """
         Emits signal with new Running State
 
@@ -259,7 +259,7 @@ class ALBACats(Cats90):
         """
         self.emit("runningStateChanged", (value,))
 
-    def _updatePoweredState(self, value):
+    def _update_powered_state(self, value):
         """
         Emits signal with new Powered State
 

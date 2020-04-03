@@ -56,9 +56,9 @@ class SOLEILCatsMaint(Equipment):
         self.running_safe = False
 
         self._chnPathRunning = self.get_channel_object("_chnPathRunning")
-        self._chnPathRunning.connectSignal("update", self._updateRunningState)
+        self._chnPathRunning.connectSignal("update", self._update_running_state)
         self._chnPowered = self.get_channel_object("_chnPowered")
-        self._chnPowered.connectSignal("update", self._updatePoweredState)
+        self._chnPowered.connectSignal("update", self._update_powered_state)
         self._chnMessage = self.get_channel_object("_chnMessage")
         self._chnMessage.connectSignal("update", self._updateMessage)
         self._chnLN2Regulation = self.get_channel_object("_chnLN2RegulationDewar1")
@@ -115,7 +115,7 @@ class SOLEILCatsMaint(Equipment):
         """
         Moves the robot arm to the home position
         """
-        return self._execute_task(False, self._doHome)
+        return self._execute_task(False, self._do_home)
 
     def dryTraj(self):
         """
@@ -208,7 +208,7 @@ class SOLEILCatsMaint(Equipment):
         self._execute_server_task(self._cmdSafe, argin)
 
     # MS 2014-11-18
-    def _doHome(self):
+    def _do_home(self):
         """
         Launch the "home" trajectory on the CATS Tango DS
 
@@ -412,12 +412,12 @@ class SOLEILCatsMaint(Equipment):
 
     #########################           PRIVATE           #########################
 
-    def _updateRunningState(self, value):
-        logging.info("CatsMaint _updateRunningState %s" % value)
+    def _update_running_state(self, value):
+        logging.info("CatsMaint _update_running_state %s" % value)
         self.emit("runningStateChanged", (value,))
 
-    def _updatePoweredState(self, value):
-        logging.info("CatsMaint _updatePoweredState %s" % value)
+    def _update_powered_state(self, value):
+        logging.info("CatsMaint _update_powered_state %s" % value)
         self.emit("powerStateChanged", (value,))
 
     def _updateMessage(self, value):

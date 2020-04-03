@@ -186,8 +186,8 @@ class CatsMaint(Equipment):
             self._chnLid3State.connectSignal("update", self._updateLid3State)
 
         self._chnState.connectSignal("update", self._update_state)
-        self._chnPathRunning.connectSignal("update", self._updateRunningState)
-        self._chnPowered.connectSignal("update", self._updatePoweredState)
+        self._chnPathRunning.connectSignal("update", self._update_running_state)
+        self._chnPowered.connectSignal("update", self._update_powered_state)
         self._chnToolOpenClose.connectSignal("update", self._updateToolState)
         self._chnMessage.connectSignal("update", self._updateMessage)
         self._chnLN2Regulation.connectSignal("update", self._updateRegulationState)
@@ -382,7 +382,7 @@ class CatsMaint(Equipment):
         """
         self._cmdAbort()
 
-    def _doHome(self):
+    def _do_home(self):
         """
         Launch the "abort" trajectory on the CATS Tango DS
 
@@ -616,30 +616,30 @@ class CatsMaint(Equipment):
 
     # ########################           PRIVATE           #########################
 
-    def _updateRunningState(self, value):
+    def _update_running_state(self, value):
         self._running = value
         self.emit("runningStateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
-    def _updatePoweredState(self, value):
+    def _update_powered_state(self, value):
         self._powered = value
         self.emit("powerStateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateToolState(self, value):
         self._toolopen = value
         self.emit("toolStateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateMessage(self, value):
         self._message = value
         self.emit("messageChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateRegulationState(self, value):
         self._regulating = value
         self.emit("regulationStateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateBarcode(self, value):
         self._barcode = value
@@ -647,27 +647,27 @@ class CatsMaint(Equipment):
 
     def _update_state(self, value):
         self._state = value
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateLid1State(self, value):
         self._lid1state = value
         self.emit("lid1StateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateLid2State(self, value):
         self._lid2state = value
         self.emit("lid2StateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateLid3State(self, value):
         self._lid3state = value
         self.emit("lid3StateChanged", (value,))
-        self._updateGlobalState()
+        self._update_global_state()
 
     def _updateOperationMode(self, value):
         self._charging = not value
 
-    def _updateGlobalState(self):
+    def _update_global_state(self):
         state_dict, cmd_state, message = self.get_global_state()
         self.emit("globalStateChanged", (state_dict, cmd_state, message))
 

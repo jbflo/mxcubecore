@@ -38,14 +38,14 @@ class ALBACatsMaint(CatsMaint):
         self._cmdReset()
         self._do_reset_memory()
 
-    def _doOperationCommand(self, cmd, pars):
+    def _do_operation_command(self, cmd, pars):
         """
         Send a CATS command
 
         @cmd: command
         @pars: command arguments
         """
-        CatsMaint._doOperationCommand(self)
+        CatsMaint._do_operation_command(self)
 
     def _get_shifts(self):
         """

@@ -92,7 +92,7 @@ class ESRFSC3(SC3.SC3):
                 )
             ):
                 with cleanup(self.unlockMinidiffMotors, wait=True, timeout=3):
-                    loaded = self.__loadSample(holderLength, sample_id, sample_location)
+                    loaded = self.__load_sample(holderLength, sample_id, sample_location)
 
                 if loaded:
                     logging.getLogger("HWR").debug("%s: sample is loaded", self.name())
@@ -116,8 +116,8 @@ class ESRFSC3(SC3.SC3):
         # if needed, should wait for SC to be able to load (loading state)
         pass
 
-    def __loadSample(self, holderLength, sample_id, sample_location):
-        logging.getLogger("HWR").debug("%s: in loadSample", self.name())
+    def __load_sample(self, holderLength, sample_id, sample_location):
+        logging.getLogger("HWR").debug("%s: in load_sample", self.name())
 
         sample = self.__getSample(sample_id, sample_location)
 
@@ -172,7 +172,7 @@ class ESRFSC3(SC3.SC3):
                 )
             ):
                 with cleanup(self.unlockMinidiffMotors, wait=True, timeout=3):
-                    unloaded = self.__unloadSample(
+                    unloaded = self.__unload_sample(
                         holderLength, sample_id, sample_location
                     )
 
@@ -186,7 +186,7 @@ class ESRFSC3(SC3.SC3):
                     if callable(sampleIsUnloadedCallback):
                         sampleIsUnloadedCallback()
 
-    def __unloadSample(self, holderLength, sample_id, sample_location):
+    def __unload_sample(self, holderLength, sample_id, sample_location):
         sample = self.__getSample(sample_id, sample_location)
 
         if not holderLength:
@@ -221,7 +221,7 @@ class ESRFSC3(SC3.SC3):
     # def getSCHolderLength(self):
     #    return
 
-    def isMicrodiff(self):
+    def is_microdiff(self):
         return not self.prepareCentringAfterLoad
 
     def operationalFlagsChanged(self, val):

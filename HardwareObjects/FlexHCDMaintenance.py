@@ -1,5 +1,5 @@
 """
-CATS maintenance mockup.
+FLEX HCD maintenance mockup.
 """
 from HardwareRepository.BaseHardwareObjects import Equipment
 
@@ -49,7 +49,7 @@ class FlexHCDMaintenance(Equipment):
         """
         return self._sc._do_abort()
 
-    def _doHome(self):
+    def _do_home(self):
         """
         Abort current command
 
@@ -68,28 +68,28 @@ class FlexHCDMaintenance(Equipment):
         """
         self._sc._do_reset()
 
-    def _doDefreezeGripper(self):
+    def _do_defreeze_gripper(self):
         """
         :returns: None
         :rtype: None
         """
         self._sc.defreeze()
 
-    def _doChangeGripper(self):
+    def _do_change_gripper(self):
         """
         :returns: None
         :rtype: None
         """
         self._sc.change_gripper()
 
-    def _do_resetSampleNumber(self):
+    def _do_reset_sample_number(self):
         """
         :returns: None
         :rtype: None
         """
         self._sc.reset_loaded_sample()
 
-    def _updateGlobalState(self):
+    def _update_global_state(self):
         state_dict, cmd_state, message = self.get_global_state()
         self.emit("globalStateChanged", (state_dict, cmd_state, message))
 
@@ -139,13 +139,13 @@ class FlexHCDMaintenance(Equipment):
         tool = self.get_current_tool()
 
         if cmdname in ["home"]:
-            self._doHome()
+            self._do_home()
         if cmdname in ["defreeze"]:
-            self._doDefreezeGripper()
+            self._do_defreeze_gripper()
         if cmdname in ["reset_sample_number"]:
-            self._do_resetSampleNumber()
+            self._do_reset_sample_number()
         if cmdname == "change_gripper":
-            self._doChangeGripper()
+            self._do_change_gripper()
         if cmdname == "abort":
             self._do_abort()
 

@@ -40,14 +40,14 @@ class PX1CatsMaint(CatsMaint):
     def update_home_opened(self, value):
         if value != self.home_opened:
             self.home_opened = value
-            self._updateGlobalState()
+            self._update_global_state()
 
     def get_global_state(self):
         state_dict, cmd_state, message = CatsMaint.get_global_state(self)
         state_dict["homeopen"] = self.home_opened
         return state_dict, cmd_state, message
 
-    def _doHomeOpen(self, unload=False):
+    def _do_homeOpen(self, unload=False):
         if unload and self.loaded:
             logging.getLogger("HWR").debug("Unloading sample first")
             self.cats_hwo._do_unload()
