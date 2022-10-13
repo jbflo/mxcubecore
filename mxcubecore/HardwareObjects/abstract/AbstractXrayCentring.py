@@ -33,8 +33,7 @@ from mxcubecore.HardwareObjects import queue_model_objects
 
 
 class AbstractXrayCentring(HardwareObjectYaml):
-    """Xray Centring Hardware Object. Set to Yaml configuration.
-    """
+    """Xray Centring Hardware Object. Set to Yaml configuration."""
 
     def __init__(self, name):
         super(AbstractXrayCentring, self).__init__(name)
@@ -96,4 +95,3 @@ class AbstractXrayCentring(HardwareObjectYaml):
     def _add_to_queue(self, parent_model_obj, child_model_obj):
         """Used to add entries to queue while centring process is running (if needed)"""
         HWR.beamline.queue_model.add_child(parent_model_obj, child_model_obj)
-

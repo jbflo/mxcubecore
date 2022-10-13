@@ -389,9 +389,7 @@ class SelectedLattice(MessageData):
         self._solution = tuple(solution)
         self._strategyDetectorSetting = data_model.detector_setting
         self._strategyWavelength = data_model.wavelengths[0]
-        self._strategyControl = json.dumps(
-            data_model.strategy_options, sort_keys=True
-        )
+        self._strategyControl = json.dumps(data_model.strategy_options, sort_keys=True)
 
     @property
     def lattice_format(self):
@@ -709,7 +707,7 @@ class BcsDetectorSetting(DetectorSetting):
 
     @property
     def orgxy(self):
-        """Tuple, empty or of two floats; beam centre on detector """
+        """Tuple, empty or of two floats; beam centre on detector"""
         return self._orgxy
 
 
@@ -973,7 +971,7 @@ class Scan(IdentifiedElement):
 
 
 class GeometricStrategy(IdentifiedElement, Payload):
-    """Geometric strategy """
+    """Geometric strategy"""
 
     INTENT = "COMMAND"
 
@@ -1064,7 +1062,7 @@ class GeometricStrategy(IdentifiedElement, Payload):
 
 
 class CollectionProposal(IdentifiedElement, Payload):
-    """Collection proposal """
+    """Collection proposal"""
 
     INTENT = "COMMAND"
 

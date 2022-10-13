@@ -51,6 +51,7 @@ from mxcubecore.HardwareObjects.Gphl import GphlMessages
 
 from mxcubecore import HardwareRepository as HWR
 
+
 @enum.unique
 class GphlWorkflowStates(enum.Enum):
     """
@@ -68,6 +69,7 @@ class GphlWorkflowStates(enum.Enum):
     ABORTED = 3
     COMPLETED = 4
     UNKNOWN = 5
+
 
 __copyright__ = """ Copyright © 2016 - 2019 by Global Phasing Ltd. """
 __license__ = "LGPLv3+"
@@ -94,8 +96,8 @@ RECENTRING_MODES = OrderedDict(
 
 
 class GphlWorkflow(HardwareObjectYaml):
-    """Global Phasing workflow runner.
-    """
+    """Global Phasing workflow runner."""
+
     SPECIFIC_STATES = GphlWorkflowStates
 
     TEST_SAMPLE_PREFIX = "emulate"
@@ -187,7 +189,7 @@ class GphlWorkflow(HardwareObjectYaml):
         # Adapt configuration data - must be done after file_paths setting
         if HWR.beamline.gphl_connection.ssh_options:
             # We are running workflow through ssh - set beamline url
-            beamline_hook ="py4j:%s:" % socket.gethostname()
+            beamline_hook = "py4j:%s:" % socket.gethostname()
         else:
             beamline_hook = "py4j::"
 
@@ -202,9 +204,9 @@ class GphlWorkflow(HardwareObjectYaml):
             for strategy in workflow["strategies"]:
                 strategy["wftype"] = wftype
                 if default_strategy_name is None:
-                    default_strategy_name = workflow["strategy_name"] = (
-                        strategy["title"]
-                    )
+                    default_strategy_name = workflow["strategy_name"] = strategy[
+                        "title"
+                    ]
                 dd0 = opt0.copy()
                 dd0.update(strategy.get("options", {}))
                 strategy["options"] = dd0
@@ -237,11 +239,9 @@ class GphlWorkflow(HardwareObjectYaml):
         return {}
 
     def query_pre_collection_params(self, data_model):
-        """
-        """
+        """ """
         #
         return {}
-
 
     def pre_execute(self, queue_entry):
         if self.is_ready():
@@ -458,7 +458,9 @@ class GphlWorkflow(HardwareObjectYaml):
                 start = sweep.start
                 width = sweep.width
                 ss1 = "%s= %6.1f°,  sweep width= %6.1f°" % (
-                    sweep.goniostatSweepSetting.scanAxis, start, width
+                    sweep.goniostatSweepSetting.scanAxis,
+                    start,
+                    width,
                 )
                 ll1.append(ss1)
             lines.append(ss0 + ",  " + ll1[0])
@@ -798,7 +800,7 @@ class GphlWorkflow(HardwareObjectYaml):
         ):
             # Not Characteisation
             use_modes.append("none")
-        for indx in range (len(modes) -1, -1, -1):
+        for indx in range(len(modes) - 1, -1, -1):
             if modes[indx] not in use_modes:
                 del modes[indx]
                 del labels[indx]
@@ -899,13 +901,11 @@ class GphlWorkflow(HardwareObjectYaml):
         geometric_strategy = payload
 
         gphl_workflow_model = self._queue_entry.get_data_model()
-        strategy_type = gphl_workflow_model.get_workflow_parameters()[
-            "strategy_type"
-        ]
+        strategy_type = gphl_workflow_model.get_workflow_parameters()["strategy_type"]
         sweeps = geometric_strategy.get_ordered_sweeps()
         strategy_length = sum(sweep.width for sweep in sweeps)
-        gphl_workflow_model.strategy_length = (
-            strategy_length * len(gphl_workflow_model.wavelengths)
+        gphl_workflow_model.strategy_length = strategy_length * len(
+            gphl_workflow_model.wavelengths
         )
 
         # Set recommended dose budget and reset transmission to match
@@ -935,7 +935,9 @@ class GphlWorkflow(HardwareObjectYaml):
             # NB update functions will be needed in UI
             gphl_workflow_model.reset_transmission()
 
-            params = self.query_pre_collection_params(gphl_workflow_model, geometric_strategy)
+            params = self.query_pre_collection_params(
+                gphl_workflow_model, geometric_strategy
+            )
             # Here transmission comes from UI
             gphl_workflow_model.set_pre_acquisition_params(**params)
             raise NotImplementedError()
@@ -961,7 +963,9 @@ class GphlWorkflow(HardwareObjectYaml):
 
             # Get modified parameters from UI and confirm acquisition
             # Run before centring, as it also does confirm/abort
-            parameters = self.query_collection_strategy(geometric_strategy, initial_energy)
+            parameters = self.query_collection_strategy(
+                geometric_strategy, initial_energy
+            )
             if parameters is StopIteration:
                 return StopIteration
             user_modifiable = geometric_strategy.isUserModifiable
@@ -989,7 +993,8 @@ class GphlWorkflow(HardwareObjectYaml):
 
             transmission = parameters["transmission"]
             logging.getLogger("GUI").info(
-                "GphlWorkflow: setting transmission to %7.3f %%" % (100.0 * transmission)
+                "GphlWorkflow: setting transmission to %7.3f %%"
+                % (100.0 * transmission)
             )
             HWR.beamline.transmission.set_value(100 * transmission)
             gphl_workflow_model.transmission = transmission
@@ -1090,7 +1095,9 @@ class GphlWorkflow(HardwareObjectYaml):
             # matching the sweepSetting
             pass
 
-        elif gphl_workflow_model.characterisation_done or strategy_type == "diffractcal":
+        elif (
+            gphl_workflow_model.characterisation_done or strategy_type == "diffractcal"
+        ):
             # Acquisition or diffractcal; crystal is already centred
             settings = dict(sweepSetting.axisSettings)
             okp = tuple(settings.get(x, 0) for x in self.rotation_axis_roles)
@@ -1220,7 +1227,9 @@ class GphlWorkflow(HardwareObjectYaml):
         gphl_workflow_model.goniostat_translations = goniostatTranslations
 
         # Unpdate dose_consumed to include dose (about to be) acquired.
-        gphl_workflow_model.dose_consumed += gphl_workflow_model.calculate_dose_consumed()
+        gphl_workflow_model.dose_consumed += (
+            gphl_workflow_model.calculate_dose_consumed()
+        )
 
         # Return SampleCentred message
         sampleCentred = GphlMessages.SampleCentred(gphl_workflow_model)
@@ -1293,10 +1302,12 @@ class GphlWorkflow(HardwareObjectYaml):
         recen_executable = HWR.beamline.gphl_connection.get_executable("recen")
         # Get environmental variables
         envs = {}
-        GPHL_XDS_PATH =  HWR.beamline.gphl_connection.software_paths.get("GPHL_XDS_PATH")
+        GPHL_XDS_PATH = HWR.beamline.gphl_connection.software_paths.get("GPHL_XDS_PATH")
         if GPHL_XDS_PATH:
             envs["GPHL_XDS_PATH"] = GPHL_XDS_PATH
-        GPHL_CCP4_PATH =  HWR.beamline.gphl_connection.software_paths.get("GPHL_CCP4_PATH")
+        GPHL_CCP4_PATH = HWR.beamline.gphl_connection.software_paths.get(
+            "GPHL_CCP4_PATH"
+        )
         if GPHL_CCP4_PATH:
             envs["GPHL_CCP4_PATH"] = GPHL_CCP4_PATH
         # Run recen
@@ -1460,7 +1471,8 @@ class GphlWorkflow(HardwareObjectYaml):
                     HWR.beamline.session.get_base_image_directory(), relative_image_dir
                 )
                 path_template.process_directory = os.path.join(
-                    HWR.beamline.session.get_base_process_directory(), relative_image_dir
+                    HWR.beamline.session.get_base_process_directory(),
+                    relative_image_dir,
                 )
             acq.path_template = path_template
             filename_params = scan.filenameParams
@@ -1518,7 +1530,7 @@ class GphlWorkflow(HardwareObjectYaml):
                 # Multitrigger sweep - add in parameters.
                 # NB if we are here ther can be only one scan
                 acq_parameters.num_triggers = scan_count
-                acq_parameters.num_images_per_trigger =  acq_parameters.num_images
+                acq_parameters.num_images_per_trigger = acq_parameters.num_images
                 acq_parameters.num_images *= scan_count
                 # NB this assumes sweepOffset is the offset between starting points
                 acq_parameters.overlap = (
@@ -1538,10 +1550,10 @@ class GphlWorkflow(HardwareObjectYaml):
 
         # debug
         format = "--> %s: %s"
-        print ("GPHL workflow. Data collection parameters:")
+        print("GPHL workflow. Data collection parameters:")
         for item in gphl_workflow_model.parameter_summary().items():
-            print (format % item)
-        print( format % ("sweep_count", len(sweeps)))
+            print(format % item)
+        print(format % ("sweep_count", len(sweeps)))
 
         data_collection_entry = queue_manager.get_entry_with_model(
             self._data_collection_group
@@ -1588,7 +1600,7 @@ class GphlWorkflow(HardwareObjectYaml):
         system_fit = None
         lattice_fit = None
         for line in dd0["solutions"]:
-            if "*" in  line:
+            if "*" in line:
                 starred = line
                 if crystal_system and crystal_system in line:
                     system_fit = line
@@ -1618,9 +1630,7 @@ class GphlWorkflow(HardwareObjectYaml):
             solution = self.auto_select_solution(choose_lattice)
 
             if not data_model.aimed_resolution:
-                raise ValueError(
-                    "aimed_resolution must be set in automation mode"
-                )
+                raise ValueError("aimed_resolution must be set in automation mode")
             # Resets detector_setting to match aimed_resolution
             data_model.detector_setting = None
             # NB resets detector_setting
@@ -1640,7 +1650,6 @@ class GphlWorkflow(HardwareObjectYaml):
             params = self.query_pre_strategy_params(data_model, choose_lattice)
             data_model.set_pre_strategy_params(**params)
             raise NotImplementedError()
-
 
         # solution_format = choose_lattice.lattice_format
         #
@@ -1740,69 +1749,69 @@ class GphlWorkflow(HardwareObjectYaml):
 
         # Solution table. for format IDXREF will look like
         """
-*********** DETERMINATION OF LATTICE CHARACTER AND BRAVAIS LATTICE ***********
+        *********** DETERMINATION OF LATTICE CHARACTER AND BRAVAIS LATTICE ***********
 
- The CHARACTER OF A LATTICE is defined by the metrical parameters of its
- reduced cell as described in the INTERNATIONAL TABLES FOR CRYSTALLOGRAPHY
- Volume A, p. 746 (KLUWER ACADEMIC PUBLISHERS, DORDRECHT/BOSTON/LONDON, 1989).
- Note that more than one lattice character may have the same BRAVAIS LATTICE.
+         The CHARACTER OF A LATTICE is defined by the metrical parameters of its
+         reduced cell as described in the INTERNATIONAL TABLES FOR CRYSTALLOGRAPHY
+         Volume A, p. 746 (KLUWER ACADEMIC PUBLISHERS, DORDRECHT/BOSTON/LONDON, 1989).
+         Note that more than one lattice character may have the same BRAVAIS LATTICE.
 
- A lattice character is marked "*" to indicate a lattice consistent with the
- observed locations of the diffraction spots. These marked lattices must have
- low values for the QUALITY OF FIT and their implicated UNIT CELL CONSTANTS
- should not violate the ideal values by more than
- MAXIMUM_ALLOWED_CELL_AXIS_RELATIVE_ERROR=  0.03
- MAXIMUM_ALLOWED_CELL_ANGLE_ERROR=           1.5 (Degrees)
+         A lattice character is marked "*" to indicate a lattice consistent with the
+         observed locations of the diffraction spots. These marked lattices must have
+         low values for the QUALITY OF FIT and their implicated UNIT CELL CONSTANTS
+         should not violate the ideal values by more than
+         MAXIMUM_ALLOWED_CELL_AXIS_RELATIVE_ERROR=  0.03
+         MAXIMUM_ALLOWED_CELL_ANGLE_ERROR=           1.5 (Degrees)
 
-  LATTICE-  BRAVAIS-   QUALITY  UNIT CELL CONSTANTS (ANGSTROEM & DEGREES)
- CHARACTER  LATTICE     OF FIT      a      b      c   alpha  beta gamma
+          LATTICE-  BRAVAIS-   QUALITY  UNIT CELL CONSTANTS (ANGSTROEM & DEGREES)
+         CHARACTER  LATTICE     OF FIT      a      b      c   alpha  beta gamma
 
- *  44        aP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
- *  31        aP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
- *  33        mP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
- *  35        mP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
- *  34        mP          0.0      56.3  102.3   56.3  90.0  90.0  90.0
- *  32        oP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
- *  14        mC          0.1      79.6   79.6  102.3  90.0  90.0  90.0
- *  10        mC          0.1      79.6   79.6  102.3  90.0  90.0  90.0
- *  13        oC          0.1      79.6   79.6  102.3  90.0  90.0  90.0
- *  11        tP          0.1      56.3   56.3  102.3  90.0  90.0  90.0
-    37        mC        250.0     212.2   56.3   56.3  90.0  90.0  74.6
-    36        oC        250.0      56.3  212.2   56.3  90.0  90.0 105.4
-    28        mC        250.0      56.3  212.2   56.3  90.0  90.0  74.6
-    29        mC        250.0      56.3  125.8  102.3  90.0  90.0  63.4
-    41        mC        250.0     212.3   56.3   56.3  90.0  90.0  74.6
-    40        oC        250.0      56.3  212.2   56.3  90.0  90.0 105.4
-    39        mC        250.0     125.8   56.3  102.3  90.0  90.0  63.4
-    30        mC        250.0      56.3  212.2   56.3  90.0  90.0  74.6
-    38        oC        250.0      56.3  125.8  102.3  90.0  90.0 116.6
-    12        hP        250.1      56.3   56.3  102.3  90.0  90.0  90.0
-    27        mC        500.0     125.8   56.3  116.8  90.0 115.5  63.4
-    42        oI        500.0      56.3   56.3  219.6 104.8 104.8  90.0
-    15        tI        500.0      56.3   56.3  219.6  75.2  75.2  90.0
-    26        oF        625.0      56.3  125.8  212.2  83.2 105.4 116.6
-     9        hR        750.0      56.3   79.6  317.1  90.0 100.2 135.0
-     1        cF        999.0     129.6  129.6  129.6 128.6  75.7 128.6
-     2        hR        999.0      79.6  116.8  129.6 118.9  90.0 109.9
-     3        cP        999.0      56.3   56.3  102.3  90.0  90.0  90.0
-     5        cI        999.0     116.8   79.6  116.8  70.1  39.8  70.1
-     4        hR        999.0      79.6  116.8  129.6 118.9  90.0 109.9
-     6        tI        999.0     116.8  116.8   79.6  70.1  70.1  39.8
-     7        tI        999.0     116.8   79.6  116.8  70.1  39.8  70.1
-     8        oI        999.0      79.6  116.8  116.8  39.8  70.1  70.1
-    16        oF        999.0      79.6   79.6  219.6  90.0 111.2  90.0
-    17        mC        999.0      79.6   79.6  116.8  70.1 109.9  90.0
-    18        tI        999.0     116.8  129.6   56.3  64.3  90.0 118.9
-    19        oI        999.0      56.3  116.8  129.6  61.1  64.3  90.0
-    20        mC        999.0     116.8  116.8   56.3  90.0  90.0 122.4
-    21        tP        999.0      56.3  102.3   56.3  90.0  90.0  90.0
-    22        hP        999.0      56.3  102.3   56.3  90.0  90.0  90.0
-    23        oC        999.0     116.8  116.8   56.3  90.0  90.0  57.6
-    24        hR        999.0     162.2  116.8   56.3  90.0  69.7  77.4
-    25        mC        999.0     116.8  116.8   56.3  90.0  90.0  57.6
-    43        mI        999.0      79.6  219.6   56.3 104.8 135.0  68.8
+         *  44        aP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
+         *  31        aP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
+         *  33        mP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
+         *  35        mP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
+         *  34        mP          0.0      56.3  102.3   56.3  90.0  90.0  90.0
+         *  32        oP          0.0      56.3   56.3  102.3  90.0  90.0  90.0
+         *  14        mC          0.1      79.6   79.6  102.3  90.0  90.0  90.0
+         *  10        mC          0.1      79.6   79.6  102.3  90.0  90.0  90.0
+         *  13        oC          0.1      79.6   79.6  102.3  90.0  90.0  90.0
+         *  11        tP          0.1      56.3   56.3  102.3  90.0  90.0  90.0
+            37        mC        250.0     212.2   56.3   56.3  90.0  90.0  74.6
+            36        oC        250.0      56.3  212.2   56.3  90.0  90.0 105.4
+            28        mC        250.0      56.3  212.2   56.3  90.0  90.0  74.6
+            29        mC        250.0      56.3  125.8  102.3  90.0  90.0  63.4
+            41        mC        250.0     212.3   56.3   56.3  90.0  90.0  74.6
+            40        oC        250.0      56.3  212.2   56.3  90.0  90.0 105.4
+            39        mC        250.0     125.8   56.3  102.3  90.0  90.0  63.4
+            30        mC        250.0      56.3  212.2   56.3  90.0  90.0  74.6
+            38        oC        250.0      56.3  125.8  102.3  90.0  90.0 116.6
+            12        hP        250.1      56.3   56.3  102.3  90.0  90.0  90.0
+            27        mC        500.0     125.8   56.3  116.8  90.0 115.5  63.4
+            42        oI        500.0      56.3   56.3  219.6 104.8 104.8  90.0
+            15        tI        500.0      56.3   56.3  219.6  75.2  75.2  90.0
+            26        oF        625.0      56.3  125.8  212.2  83.2 105.4 116.6
+             9        hR        750.0      56.3   79.6  317.1  90.0 100.2 135.0
+             1        cF        999.0     129.6  129.6  129.6 128.6  75.7 128.6
+             2        hR        999.0      79.6  116.8  129.6 118.9  90.0 109.9
+             3        cP        999.0      56.3   56.3  102.3  90.0  90.0  90.0
+             5        cI        999.0     116.8   79.6  116.8  70.1  39.8  70.1
+             4        hR        999.0      79.6  116.8  129.6 118.9  90.0 109.9
+             6        tI        999.0     116.8  116.8   79.6  70.1  70.1  39.8
+             7        tI        999.0     116.8   79.6  116.8  70.1  39.8  70.1
+             8        oI        999.0      79.6  116.8  116.8  39.8  70.1  70.1
+            16        oF        999.0      79.6   79.6  219.6  90.0 111.2  90.0
+            17        mC        999.0      79.6   79.6  116.8  70.1 109.9  90.0
+            18        tI        999.0     116.8  129.6   56.3  64.3  90.0 118.9
+            19        oI        999.0      56.3  116.8  129.6  61.1  64.3  90.0
+            20        mC        999.0     116.8  116.8   56.3  90.0  90.0 122.4
+            21        tP        999.0      56.3  102.3   56.3  90.0  90.0  90.0
+            22        hP        999.0      56.3  102.3   56.3  90.0  90.0  90.0
+            23        oC        999.0     116.8  116.8   56.3  90.0  90.0  57.6
+            24        hR        999.0     162.2  116.8   56.3  90.0  69.7  77.4
+            25        mC        999.0     116.8  116.8   56.3  90.0  90.0  57.6
+            43        mI        999.0      79.6  219.6   56.3 104.8 135.0  68.8
 
- For protein crystals the possible space group numbers corresponding  to"""
+         For protein crystals the possible space group numbers corresponding  to"""
 
         # find headers lines
         solutions = []
@@ -1950,12 +1959,9 @@ class GphlWorkflow(HardwareObjectYaml):
         )
         if data_model.automation_mode:
             # Either TEST or MASSIF1
-            #m NB Negotiate different location with Olof Svensson
+            # m NB Negotiate different location with Olof Svensson
             centring_model = queue_model_objects.addXrayCentring(
-                parent,
-                name=task_label,
-                motor_positions=motor_settings,
-                grid_size=None
+                parent, name=task_label, motor_positions=motor_settings, grid_size=None
             )
         else:
             centring_model = queue_model_objects.SampleCentring(
@@ -2079,7 +2085,7 @@ class GphlWorkflow(HardwareObjectYaml):
         return min(result, max_budget) / relative_sensitivity
 
     def get_emulation_samples(self):
-        """ Get list of lims_sample information dictionaries for mock/emulation
+        """Get list of lims_sample information dictionaries for mock/emulation
 
         Returns: LIST[DICT]
 
