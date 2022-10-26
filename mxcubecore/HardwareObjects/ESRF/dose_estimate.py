@@ -4,16 +4,20 @@ import subprocess
 
 from mxcubecore import HardwareRepository as HWR
 
-class EstimateDose:
+class DoseEstimate:
     def __init__(self, fname=None):
         self.dose_rate = 0.0
+        self.total_dose_estimate = 0.0
                 
-    def init(self, fname="/opt/pxsoft/bin/flux2dose", transmission=10):
+    def init(self, fname="/opt/pxsoft/bin/flux2dose", transmission=None):
        self.dose_rate = self.get_current_dose(fname, transmission)
        self.fname = fname
     
     def get_current_dose(fname, transmission):
         fullbeam = 1e13  # photons/sec
+
+        if transmission is None:
+            transmission = HWR.beamline.transmission.get_value()
 
         beamx, beamy = HWR.beamline.detector.get_beam_position()
 
@@ -36,10 +40,10 @@ class EstimateDose:
                 
             nframes = wedge / oscillation_range
             total_time =  exposure_time * nframes  # Value in Seconds
-            total_dose = self.dose_rate * total_time
+            self.total_dose_estimate = self.dose_rate * total_time
 
-            return total_dose
+            return self.total_dose_estimate
 
         except Exception:
             print("Could not Calculate dose estimation")
-            return total_dose
+            return self.total_dose_estimate
