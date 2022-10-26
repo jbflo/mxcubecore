@@ -33,6 +33,8 @@ import gevent
 from mxcubecore import HardwareRepository as HWR
 from mxcubecore.HardwareObjects.abstract.AbstractFlux import AbstractFlux
 
+from dose_estimate import DoseEstimate
+
 
 class ESRFPhotonFlux(AbstractFlux):
     """Photon flux calculation for ID30B"""
@@ -44,10 +46,14 @@ class ESRFPhotonFlux(AbstractFlux):
         self._aperture = None
         self.threshold = None
 
+        self.dose_estimate = None
+
     def init(self):
         """Initialisation"""
         super().init()
         controller = self.get_object_by_role("controller")
+
+        import pdb; pdb.set_trace()
 
         self._aperture = self.get_object_by_role("aperture")
         self.threshold = self.get_property("threshold") or 0.0
@@ -58,6 +64,14 @@ class ESRFPhotonFlux(AbstractFlux):
         except AttributeError:
             logging.getLogger("HWR").exception(
                 "Could not get flux calculation from BLISS"
+            )
+
+        try:
+            self.dose_estimate = controller.DoseEstimate()
+            self.dose_estimate.init()
+        except AttributeError:
+            logging.getLogger("HWR").exception(
+                "Could not Import Dose Estimate"
             )
 
         counter = self.get_property("counter_name")
