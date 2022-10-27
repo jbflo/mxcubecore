@@ -33,7 +33,7 @@ import gevent
 from mxcubecore import HardwareRepository as HWR
 from mxcubecore.HardwareObjects.abstract.AbstractFlux import AbstractFlux
 
-from dose_estimate import DoseEstimate
+# from dose_estimate import DoseEstimate
 
 
 class ESRFPhotonFlux(AbstractFlux):
@@ -46,14 +46,13 @@ class ESRFPhotonFlux(AbstractFlux):
         self._aperture = None
         self.threshold = None
 
-        self.dose_estimate = None
+        self.flux_dose_estimate = 0
+        self.current_flux_dose = 0
 
     def init(self):
         """Initialisation"""
         super().init()
         controller = self.get_object_by_role("controller")
-
-        import pdb; pdb.set_trace()
 
         self._aperture = self.get_object_by_role("aperture")
         self.threshold = self.get_property("threshold") or 0.0
@@ -66,13 +65,14 @@ class ESRFPhotonFlux(AbstractFlux):
                 "Could not get flux calculation from BLISS"
             )
 
-        try:
-            self.dose_estimate = controller.DoseEstimate()
-            self.dose_estimate.init()
-        except AttributeError:
-            logging.getLogger("HWR").exception(
-                "Could not Import Dose Estimate"
-            )
+        # try:
+        #     import pdb; pdb.set_trace()
+        #     self.dose_estimate = DoseEstimate()
+        #     self.dose_estimate.init()
+        # except AttributeError:
+        #     logging.getLogger("HWR").exception(
+        #         "Could not Import Dose Estimate"
+        #     )
 
         counter = self.get_property("counter_name")
         if counter:
@@ -87,6 +87,28 @@ class ESRFPhotonFlux(AbstractFlux):
 
         HWR.beamline.safety_shutter.connect("stateChanged", self.update_value)
         self._poll_task = gevent.spawn(self._poll_flux)
+    
+    # def get_current_flux_dose(self):
+    #     try:
+    #         self.dose_estimate.init()
+    #         self.current_flux_dose = self.dose_estimate.dose_rate()
+    #     except Exception:
+    #         logging.getLogger("HWR").exception(
+    #             "Could not Get Current Flux Dose"
+    #         )
+    #     return self.flux_dose_estimate
+    
+    # def get_flux_dose_estimate(self, args):
+    #     try:
+    #         self.dose_estimate.init()
+    #         self.flux_dose_estimate = self.dose_estimate.flux_dose_estimate(args)
+    #     except Exception:
+    #         logging.getLogger("HWR").exception(
+    #             "Could not Get Dose Estimate"
+    #         )
+    #     return self.flux_dose_estimate
+
+
 
     def _poll_flux(self):
         while True:
