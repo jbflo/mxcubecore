@@ -2,15 +2,56 @@ import gevent
 from datetime import datetime
 import time
 import logging
+import ast
 
 from mxcubecore.HardwareObjects.abstract import AbstractSampleChanger
-from mxcubecore.HardwareObjects.abstract.sample_changer import Container
+
+
+from mxcubecore.HardwareObjects.abstract.sample_changer import (
+    Container,
+)
+
+from mxcubecore.HardwareObjects.EMBLFlexHCD import Basket
+class Cell(Container.Container):
+    __TYPE__ = "Cell"
+
+    def __init__(self, container, number, puck_type="SC3"):
+        super(Cell, self).__init__(
+            self.__TYPE__, container, Cell.get_cell_address(number), True
+        )
+        self.present = True
+
+        if puck_type=="SC3":
+            for i in range(3):
+                self._add_component(
+                    Basket(self, number, i + 1, unipuck=False)
+                )
+        else:
+            for i in range(3):
+                self._add_component(
+                    Basket(self, number, i + 1, unipuck=True)
+                )
+
+    @staticmethod
+    def get_cell_address(cell_number):
+        return str(cell_number)
+
+    def _reset_basket_info(self, basket_no):
+        pass
+
+    def clear_info(self):
+        self.get_container()._reset_cell_info(self.get_index() + 1)
+        self.get_container()._trigger_info_changed_event()
+
+    def get_cell(self):
+        return self
 
 
 class SampleChangerMockup(AbstractSampleChanger.SampleChanger):
 
     __TYPE__ = "Mockup"
     NO_OF_BASKETS = 5
+    NO_OF_PUCK_IN_BASKET = 3
     NO_OF_SAMPLES_IN_BASKET = 10
 
     def __init__(self, *args, **kwargs):
@@ -29,11 +70,12 @@ class SampleChangerMockup(AbstractSampleChanger.SampleChanger):
             "no_of_samples_in_basket", SampleChangerMockup.NO_OF_SAMPLES_IN_BASKET
         )
 
-        for i in range(self.no_of_baskets):
-            basket = Container.Basket(
-                self, i + 1, samples_num=self.no_of_samples_in_basket
-            )
-            self._add_component(basket)
+        _pucks = '["UNI", "UNI", "UNI", "UNI", "UNI", "UNI", "UNI", "UNI"]'
+        pucks = ast.literal_eval(self.get_property("puck_configuration", _pucks))
+
+        for i in range(8):
+            cell = Cell(self, i + 1, pucks[i])
+            self._add_component(cell)
 
         self._init_sc_contents()
         self.signal_wait_task = None
@@ -49,7 +91,6 @@ class SampleChangerMockup(AbstractSampleChanger.SampleChanger):
 
     def load(self, sample, wait=False):
         self.emit("fsmConditionChanged", "sample_mounting_sample_changer", True)
-        previous_sample = self.get_loaded_sample()
         self._set_state(AbstractSampleChanger.SampleChangerState.Loading)
         self._reset_loaded_sample()
 
@@ -74,10 +115,10 @@ class SampleChangerMockup(AbstractSampleChanger.SampleChanger):
         mounted_sample = self.get_component_by_address(
             Container.Pin.get_sample_address(basket, sample)
         )
+        mounted_sample._set_loaded(True, False)
         self._set_state(AbstractSampleChanger.SampleChangerState.Ready)
 
-        if mounted_sample is not previous_sample:
-            self._trigger_loaded_sample_changed_event(mounted_sample)
+        self._set_loaded_sample(mounted_sample)
         self.update_info()
         logging.getLogger("user_level_log").info("Sample changer: Sample loaded")
         self.emit("progressStop", ())
@@ -152,7 +193,8 @@ class SampleChangerMockup(AbstractSampleChanger.SampleChanger):
             datamatrix = None
             present = True
             scanned = False
-            basket._set_info(present, datamatrix, scanned)
+            if basket is not None:
+                basket._set_info(present, datamatrix, scanned)
 
         sample_list = []
         for basket_index in range(self.no_of_baskets):
@@ -174,8 +216,9 @@ class SampleChangerMockup(AbstractSampleChanger.SampleChanger):
                 sample._name = sample_name
             datamatrix = "matr%d_%d" % (spl[1], spl[2])
             present = scanned = loaded = has_been_loaded = False
-            sample._set_info(present, datamatrix, scanned)
-            sample._set_loaded(loaded, has_been_loaded)
-            sample._set_holder_length(spl[4])
+            if sample is not None:
+                sample._set_info(present, datamatrix, scanned)
+                sample._set_loaded(loaded, has_been_loaded)
+                sample._set_holder_length(spl[4])
 
         self._set_state(AbstractSampleChanger.SampleChangerState.Ready)
