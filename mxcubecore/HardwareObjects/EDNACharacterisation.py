@@ -88,24 +88,15 @@ class EDNACharacterisation(AbstractCharacterisation):
         TIME_OUT = 120
         while do_continue:
             if self.characterisationResult is not None:
-                logging.getLogger("queue_exec").info(
-                    "Received characterisation results via XMLRPC"
-                )
-                # logging.getLogger("queue_exec").info([self.characterisationResult])
-                # with open("/tmp/EDNA_results.xml", "w") as f:
-                #     f.write(self.characterisationResult)
-                self.result = XSDataResultMXCuBE.parseString(
-                    self.characterisationResult
-                )
+                logging.getLogger("queue_exec").info("Received characterisation results via XMLRPC")
+                self.result = XSDataResultMXCuBE.parseString(self.characterisationResult)
                 do_continue = False
             elif p.poll() is not None:
                 do_continue = False
             elif time.time() - start_time > TIME_OUT:
                 do_continue = False
             if do_continue:
-                logging.getLogger("queue_exec").info(
-                    "Waiting for characterisation results..."
-                )
+                logging.getLogger("queue_exec").info("Waiting for characterisation results...")
                 time.sleep(1)
 
         if self.result is None and os.path.exists(results_file):
@@ -258,15 +249,14 @@ class EDNACharacterisation(AbstractCharacterisation):
         path_str = os.path.join(
             path_template.directory, path_template.get_image_file_name()
         )
-        characterisation_dir = path_template.xds_dir.replace(
-            "/autoprocessing_", "/characterisation_"
-        )
+        characterisation_dir = path_template.xds_dir.replace("/autoprocessing_", "/characterisation_")
         os.makedirs(characterisation_dir, mode=0o755, exist_ok=True)
         for img_num in range(int(acquisition_parameters.num_images)):
             image_file = XSDataImage()
             path = XSDataString()
-            path.setValue(path_str % (img_num + 1))
-            image_file.setPath(path)
+            path.value = path_str % (img_num + 1)
+            image_file.path = path
+            image_file.number = XSDataInteger(img_num + 1)
             data_set.addImageFile(image_file)
 
         edna_input.addDataSet(data_set)
@@ -372,7 +362,9 @@ class EDNACharacterisation(AbstractCharacterisation):
                 # and update the members the needs to be changed. Keeping
                 # the directories of the reference collection.
                 ref_pt = reference_image_collection.acquisitions[0].path_template
+
                 acq.path_template = copy.deepcopy(ref_pt)
+                acq.path_template.directory = "/".join(ref_pt.directory.split("/")[0:-2])
                 acq.path_template.wedge_prefix = "w" + str(i + 1)
                 acq.path_template.reference_image_prefix = str()
 

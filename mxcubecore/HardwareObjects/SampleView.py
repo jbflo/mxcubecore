@@ -580,9 +580,12 @@ class Grid(Shape):
         beam_pos = HWR.beamline.beam.get_beam_position_on_screen()
         size_x, size_y, shape, _label = HWR.beamline.beam.get_value()
 
-        # MXCuBE - 2 WF compatability
-        d["x1"] = -float((beam_pos[0] - d["screen_coord"][0]) / pixels_per_mm[0])
-        d["y1"] = -float((beam_pos[1] - d["screen_coord"][1]) / pixels_per_mm[1])
+        d["x1"] = -float(
+            (beam_pos[0] - d["screen_coord"][0]) / pixels_per_mm[0]
+        )
+        d["y1"] = -float(
+            (beam_pos[1] - d["screen_coord"][1]) / pixels_per_mm[1]
+        )
         d["steps_x"] = d["num_cols"]
         d["steps_y"] = d["num_rows"]
         d["dx_mm"] = d["width"] / pixels_per_mm[0]

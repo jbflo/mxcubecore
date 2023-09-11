@@ -281,6 +281,10 @@ class Microdiff(MiniDiff.MiniDiff):
             EXPORTER_TO_HWOBJ_STATE.get(value, HardwareObjectState.UNKNOWN)
         )
 
+    def abort(self):
+        self.abort_cmd()
+        return True
+
     def getMotorToExporterNames(self):
         MOTOR_TO_EXPORTER_NAME = {
             "focus": self.focusMotor.get_property("actuator_name"),

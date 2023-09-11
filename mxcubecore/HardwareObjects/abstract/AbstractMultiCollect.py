@@ -1033,7 +1033,7 @@ class AbstractMultiCollect(object):
                                 ),
                             ):
                                 if last_image_saved <= 0:
-                                    last_image_saved = elf.last_image_saved(
+                                    last_image_saved = self.last_image_saved(
                                         _total_exptime, exptime, wedge_size
                                     )
 

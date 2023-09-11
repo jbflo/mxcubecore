@@ -878,8 +878,8 @@ class MiniDiff(Equipment):
                 self.reject_centring()
             else:
                 self.emitCentringSuccessful()
-                if not self.user_confirms_centring:
-                    self.accept_centring()
+                #if not self.user_confirms_centring:
+                self.accept_centring()
                 logging.getLogger("user_level_log").info(
                     "Automatic loop centring successful"
                 )
@@ -972,6 +972,8 @@ class MiniDiff(Equipment):
             self.emit("centringSuccessful", (method, self.get_centring_status()))
             self.currentCentringMethod = None
             self.current_centring_procedure = None
+            tmp_img_name = os.path.join(tempfile.gettempdir(), "last_img.png")
+            #sample_view.camera.save_snapshot(tmp_img_name)
         else:
             logging.getLogger("HWR").debug(
                 "MiniDiff: trying to emit centringSuccessful outside of a centring"
