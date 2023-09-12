@@ -134,4 +134,7 @@ class ESRFPhotonFlux(AbstractFlux):
                                               (default);
                              if timeout is None: wait forever.
         """
-        return self.beam_check_obj.wait_for_beam(timeout)
+        try:
+            return self.beam_check_obj.wait_for_beam(timeout)
+        except AttributeError:
+            return True
