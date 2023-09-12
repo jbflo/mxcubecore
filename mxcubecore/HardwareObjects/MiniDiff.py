@@ -604,11 +604,15 @@ class MiniDiff(Equipment):
                 self.wait_ready(30)
                 fun = self.centringMethods[method]
             else:
-                logging.getLogger("HWR").error(
-                    "Using change phase for centering in Java script (DN)"
+                logging.getLogger("HWR").info(
+                    "Using change phase for centering in Java script (DN) for MiniDiff"
                 )
                 self.run_script("ChangePhase_centring")
+                time.sleep(0.5)
                 self.wait_ready(60)
+                logging.getLogger("HWR").info(
+                    "Using centering in Java script (DN) for MiniDiff"
+                )
                 self.run_script("sample_centering")
                 time.sleep(0.5)
                 self.wait_ready(120)
