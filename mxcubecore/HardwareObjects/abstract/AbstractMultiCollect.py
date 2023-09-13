@@ -966,8 +966,8 @@ class AbstractMultiCollect(object):
                                 osc_start,
                                 osc_end,
                                 exptime,
-                                data_collect_parameters.get("shutterless", True),
                                 wedge_size,
+                                data_collect_parameters.get("shutterless", True),
                                 j == wedge_size,
                             )
 
